@@ -38,26 +38,12 @@ export PYTHON_BIN=/environment/miniconda3/bin/python
 # Featurize 实例：使用账号可写的本地高速盘；不要使用 /data（通常无写权限）。
 export MODEL_DIR=/home/featurize/data/models/ShizhenGPT-7B-LLM
 mkdir -p "$MODEL_DIR"
-huggingface-cli download FreedomIntelligence/ShizhenGPT-7B-LLM \
+HF_ENDPOINT=https://hf-mirror.com huggingface-cli download \
+  FreedomIntelligence/ShizhenGPT-7B-LLM \
   --local-dir "$MODEL_DIR"
 ```
 
 其他 Linux 服务器可将 `MODEL_DIR` 改为任一当前用户可写、且有至少 20 GiB 空间的目录，例如 `$HOME/models/ShizhenGPT-7B-LLM`。
-
-如果 Hugging Face 出现临时 `429 Too Many Requests`，下载并未成功；先稍后重试。登录自己的 Hugging Face 账号可使用个人访问令牌并通常获得更稳定的下载额度：
-
-```bash
-huggingface-cli login
-huggingface-cli download FreedomIntelligence/ShizhenGPT-7B-LLM \
-  --local-dir "$MODEL_DIR"
-```
-
-如网络环境允许使用镜像，可临时设置镜像端点后重试：
-
-```bash
-HF_ENDPOINT=https://hf-mirror.com huggingface-cli download \
-  FreedomIntelligence/ShizhenGPT-7B-LLM --local-dir "$MODEL_DIR"
-```
 
 如目标服务器尚未安装 CUDA 版 PyTorch，请先按 [PyTorch 官方安装页](https://pytorch.org/get-started/locally/) 选择与 CUDA 驱动匹配的命令，再安装本项目 `requirements.txt`。
 

@@ -1,0 +1,22 @@
+# Torch is deliberately not pinned here. Install a CUDA-enabled PyTorch build
+# appropriate for the target server first, then install these application deps.
+transformers==4.51.0
+accelerate==1.6.0
+# 0.45.5 supports the server's existing Torch 2.2 / CUDA 12.1 stack. Newer
+# releases can force a multi-gigabyte Torch/CUDA upgrade through pip.
+bitsandbytes==0.45.5
+gradio==5.23.3
+huggingface_hub==0.30.2
+safetensors==0.5.3
+
+# Direct compatibility pins for the Web UI. Keeping these here prevents pip
+# from selecting a newer, incompatible Gradio subdependency on a fresh host.
+tokenizers==0.21.4
+aiofiles==23.2.1
+fastapi==0.115.12
+gradio-client==1.8.0
+pydantic==2.11.10
+starlette==0.46.2
+tomlkit==0.13.3
+typer==0.12.5
+socksio==1.0.0

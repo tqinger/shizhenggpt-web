@@ -75,24 +75,32 @@ test -f "$MODEL_DIR/config.json" && echo "模型文件已就绪"
 前台启动（便于首次排错）：
 
 ```bash
-MODEL_PATH="$MODEL_DIR" PORT=7860 python app.py
+MODEL_PATH="$MODEL_DIR" PORT=7860 ./start.sh
 ```
 
-后台启动：
+后台启动前，先检查服务是否已经在运行。`HTTP/1.1 200 OK` 表示网页已经可用，**不要再启动第二个进程**：
+
+```bash
+curl -I http://127.0.0.1:7860
+```
+
+仅在服务未运行时后台启动：
 
 ```bash
 mkdir -p logs
 MODEL_PATH="$MODEL_DIR" PORT=7860 \
-  nohup python app.py > logs/app.log 2>&1 &
+  nohup ./start.sh > logs/app.log 2>&1 < /dev/null &
 echo $! > app.pid
 tail -f logs/app.log
 ```
+
+`nohup: ignoring input` 是正常提示。如果出现 `Cannot find empty port ... 7860`，说明已有服务正在使用该端口；运行上述 `curl` 检查并直接访问页面，或按下面的“停止服务”步骤先停止旧服务。
 
 如需向外网映射端口，请务必在启动时设置认证信息（不要把密码写进代码或提交到仓库）：
 
 ```bash
 APP_USERNAME=your-name APP_PASSWORD='use-a-strong-secret' \
-  MODEL_PATH="$MODEL_DIR" PORT=7860 python app.py
+  MODEL_PATH="$MODEL_DIR" PORT=7860 ./start.sh
 ```
 
 服务监听 `0.0.0.0:7860`。先在服务器上验证：

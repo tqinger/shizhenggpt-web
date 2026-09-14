@@ -17,10 +17,10 @@
 ## 一、前置条件
 
 1. Linux + NVIDIA GPU。若使用本项目默认的 4-bit 推理，推荐至少 12 GiB 显存；本次已经在 16 GiB A4000 上部署。
-2. Python 3.10+，并已安装与 GPU/CUDA 匹配的 PyTorch。例如先验证：
+2. Python 3.10+，并已安装与 GPU/CUDA 匹配的 PyTorch。在 Featurize 上使用预装的 `base` CUDA 环境验证：
 
    ```bash
-   python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
+   /environment/miniconda3/bin/python -c "import torch; print(torch.__version__, torch.version.cuda, torch.cuda.is_available())"
    ```
 
 3. 磁盘至少预留约 20 GiB 给原始 BF16 权重和 Hugging Face 缓存。
@@ -31,12 +31,9 @@
 git clone git@github.com:tqinger/shizhenggpt-web.git shizhenggpt-web
 cd shizhenggpt-web
 
-# 推荐使用虚拟环境；Featurize 也可按平台建议直接使用 pip install --user。
-python -m venv .venv
-source .venv/bin/activate
-
-python -m pip install --upgrade pip
-python -m pip install --upgrade-strategy only-if-needed -r requirements.txt
+# Featurize：不要创建或激活 .venv；使用预装的 CUDA base 环境。
+export PYTHON_BIN=/environment/miniconda3/bin/python
+"$PYTHON_BIN" -m pip install --user --upgrade-strategy only-if-needed -r requirements.txt
 
 # Featurize 实例：使用账号可写的本地高速盘；不要使用 /data（通常无写权限）。
 export MODEL_DIR=/home/featurize/data/models/ShizhenGPT-7B-LLM
@@ -75,7 +72,8 @@ test -f "$MODEL_DIR/config.json" && echo "模型文件已就绪"
 前台启动（便于首次排错）：
 
 ```bash
-MODEL_PATH="$MODEL_DIR" PORT=7860 ./start.sh
+PYTHON_BIN=/environment/miniconda3/bin/python \
+  MODEL_PATH="$MODEL_DIR" PORT=7860 ./start.sh
 ```
 
 后台启动前，先检查服务是否已经在运行。`HTTP/1.1 200 OK` 表示网页已经可用，**不要再启动第二个进程**：
@@ -88,7 +86,8 @@ curl -I http://127.0.0.1:7860
 
 ```bash
 mkdir -p logs
-MODEL_PATH="$MODEL_DIR" PORT=7860 \
+PYTHON_BIN=/environment/miniconda3/bin/python \
+  MODEL_PATH="$MODEL_DIR" PORT=7860 \
   nohup ./start.sh > logs/app.log 2>&1 < /dev/null &
 echo $! > app.pid
 tail -f logs/app.log

@@ -10,10 +10,10 @@ export SERVER_NAME="${SERVER_NAME:-0.0.0.0}"
 export HF_HOME="${HF_HOME:-/home/featurize/data/hf-cache}"
 export GRADIO_ANALYTICS_ENABLED="${GRADIO_ANALYTICS_ENABLED:-False}"
 
-# Prefer the repository virtual environment on a fresh deployment, unless an
-# explicit CUDA-capable interpreter was selected by the operator.
-if [[ -z "${PYTHON_BIN:-}" && -x .venv/bin/python ]]; then
-  PYTHON_BIN=.venv/bin/python
+# On Featurize, prefer its preinstalled CUDA-enabled base interpreter. On
+# other systems, use an explicitly supplied interpreter or the PATH default.
+if [[ -z "${PYTHON_BIN:-}" && -x /environment/miniconda3/bin/python ]]; then
+  PYTHON_BIN=/environment/miniconda3/bin/python
 else
   PYTHON_BIN="${PYTHON_BIN:-python}"
 fi

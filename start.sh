@@ -10,11 +10,12 @@ export SERVER_NAME="${SERVER_NAME:-0.0.0.0}"
 export HF_HOME="${HF_HOME:-/home/featurize/data/hf-cache}"
 export GRADIO_ANALYTICS_ENABLED="${GRADIO_ANALYTICS_ENABLED:-False}"
 
-# Prefer the repository virtual environment on a fresh deployment, while
-# retaining compatibility with the Featurize base environment used originally.
-PYTHON_BIN="${PYTHON_BIN:-python}"
-if [[ -x .venv/bin/python ]]; then
+# Prefer the repository virtual environment on a fresh deployment, unless an
+# explicit CUDA-capable interpreter was selected by the operator.
+if [[ -z "${PYTHON_BIN:-}" && -x .venv/bin/python ]]; then
   PYTHON_BIN=.venv/bin/python
+else
+  PYTHON_BIN="${PYTHON_BIN:-python}"
 fi
 
 exec "$PYTHON_BIN" app.py

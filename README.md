@@ -94,7 +94,7 @@ echo $! > app.pid
 tail -f logs/app.log
 ```
 
-`nohup: ignoring input` 是正常提示。如果出现 `Cannot find empty port ... 7860`，说明已有服务正在使用该端口；运行上述 `curl` 检查并直接访问页面，或按下面的“停止服务”步骤先停止旧服务。
+`nohup: ignoring input` 是正常提示。`tail -f` 会持续显示日志；按 `Ctrl + C` 只会退出日志查看，**不会停止网页服务**。如果出现 `Cannot find empty port ... 7860`，说明已有服务正在使用该端口；运行上述 `curl` 检查并直接访问页面，或按下面的“停止服务”步骤先停止旧服务。
 
 如需向外网映射端口，请务必在启动时设置认证信息（不要把密码写进代码或提交到仓库）：
 
@@ -126,8 +126,14 @@ http://workspace.featurize.cn:<命令返回的公网端口>
 停止服务：
 
 ```bash
+cd /home/featurize/work/shizhenggpt-web
 kill "$(cat app.pid)"
+
+# 验证：连接失败即代表服务已停止
+curl -I http://127.0.0.1:7860
 ```
+
+若最后一条命令仍返回 `200 OK`，说明该端口上还有服务在运行；执行 `ss -ltnp '( sport = :7860 )'` 查找进程，而不要重复执行启动命令。
 
 ## 四、在 Featurize 平台启动并访问网页
 
@@ -190,6 +196,9 @@ featurize port unexport 7860
 ```bash
 cd /home/featurize/work/shizhenggpt-web
 kill "$(cat app.pid)"             # 停止
+
+# Ctrl + C 仅退出 tail -f 的日志查看，不会停止此服务。
+# 若不再需要公网入口，也可清理映射：featurize port unexport 7860
 
 # 重新启动
 nohup ./start.sh > logs/app.log 2>&1 < /dev/null &
